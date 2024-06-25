@@ -1,5 +1,5 @@
 [package]
-name = "erlang-engine-buildpack"
+name = "erlang-otp-buildpack"
 rust-version.workspace = true
 edition.workspace = true
 

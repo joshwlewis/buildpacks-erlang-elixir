@@ -1,0 +1,33 @@
+api = "0.10"
+
+[buildpack]
+id = "joshwlewis/erlang-otp"
+version = "0.1.0"
+name = "Installs Erlang/OTP from builds.hex.pm"
+
+[[stacks]]
+id = "*"
+
+[[targets]]
+os = "linux"
+arch = "arm64"
+
+[[targets.distros]]
+name = "ubuntu"
+version = "22.04"
+
+[[targets.distros]]
+name = "ubuntu"
+version = "24.04"
+
+[[targets]]
+os = "linux"
+arch = "amd64"
+
+[[targets.distros]]
+name = "ubuntu"
+version = "22.04"
+
+[[targets.distros]]
+name = "ubuntu"
+version = "24.04"

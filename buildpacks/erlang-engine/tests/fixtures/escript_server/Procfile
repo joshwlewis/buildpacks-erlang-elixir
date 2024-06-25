@@ -1,0 +1,1 @@
+web: escript server.erl $PORT

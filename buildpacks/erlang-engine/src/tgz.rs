@@ -1,7 +1,7 @@
 use flate2::read::GzDecoder;
 use std::{
     fs,
-    io::Read,
+    io::{BufReader, Read},
     path::{Path, PathBuf},
 };
 use tar::Archive;
@@ -28,11 +28,12 @@ pub(crate) fn fetch_extract_strip(
     url: String,
     dest_dir: impl AsRef<std::path::Path>,
 ) -> Result<(), Error> {
+    println!("url: {url:?}");
     let destination = dest_dir.as_ref();
-    let body = ureq::get(&url)
+    let response = ureq::get(&url)
         .call()
-        .map_err(|e| Error::Http(Box::new(e)))?
-        .into_reader();
+        .map_err(|e| Error::Http(Box::new(e)))?;
+    let body = BufReader::new(response.into_reader());
 
     let mut archive = Archive::new(GzDecoder::new(body));
     for entry in archive.entries().map_err(Error::Entries)? {

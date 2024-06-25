@@ -7,6 +7,7 @@ pub(crate) enum Error {
     Parse,
 }
 
+#[derive(Clone)]
 pub(crate) struct ErlangBuild {
     version: String,
     arch: String,

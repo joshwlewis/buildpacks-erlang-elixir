@@ -79,7 +79,7 @@ impl Buildpack for ErlangOTPBuildpack {
                     context.target.distro_version,
                 )
                 .map_err(ErlangOTPBuildpackError::ResolveVersion)?;
-                let erlang_build = erlang_builds.last().unwrap();
+                let erlang_build = erlang_builds[5].clone();
 
                 tgz::fetch_extract_strip(erlang_build.url(), dist_layer.path())
                     .map_err(ErlangOTPBuildpackError::DownloadBuild)?;

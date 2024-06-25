@@ -9,11 +9,11 @@ pub(crate) enum Error {
 
 #[derive(Clone)]
 pub(crate) struct ErlangBuild {
-    version: String,
-    arch: String,
+    pub(crate) version: String,
+    pub(crate) arch: String,
     pub(crate) checksum: String,
-    distro: String,
-    distro_version: String,
+    pub(crate) distro: String,
+    pub(crate) distro_version: String,
 }
 
 impl ErlangBuild {

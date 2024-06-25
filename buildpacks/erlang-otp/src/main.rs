@@ -13,7 +13,6 @@ use libcnb::layer::{
 #[cfg(test)]
 use libcnb_test as _;
 use serde::{Deserialize, Serialize};
-use tempfile::{tempdir, TempDir};
 
 mod bob;
 mod tgz;
@@ -22,7 +21,8 @@ pub(crate) struct ErlangOTPBuildpack;
 
 #[derive(Debug)]
 pub(crate) enum ErlangOTPBuildpackError {
-    ResolveVersion(bob::Error),
+    ListVersions(bob::Error),
+    ResolveVersion,
     DownloadBuild(tgz::Error),
     TempDir(std::io::Error),
     Install(std::io::Error),
@@ -44,7 +44,8 @@ impl Buildpack for ErlangOTPBuildpack {
     }
 
     fn build(&self, context: BuildContext<Self>) -> libcnb::Result<BuildResult, Self::Error> {
-        let otp_version = "26.2.1-1";
+        // TODO: Allow user to pick Erlang/OTP version.
+        let otp_version = "26.2.4";
         let metadata = ErlangOTPMetadata {
             version: otp_version.to_string(),
         };
@@ -67,24 +68,29 @@ impl Buildpack for ErlangOTPBuildpack {
 
         match dist_layer.state {
             LayerState::Restored { .. } => {
-                println!("Restoring Erlang OTP {otp_version} from cache");
+                println!("Restoring Erlang/OTP {otp_version} from cache");
             }
             LayerState::Empty { .. } => {
-                println!("Downloading Erlang OTP {otp_version}");
+                println!("Resolving Erlang/OTP version (requested {otp_version})");
 
-                // TODO: Allow user to pick Erlang/OTP version.
                 let erlang_builds = bob::ErlangBuild::list(
                     context.target.arch,
                     context.target.distro_name,
                     context.target.distro_version,
                 )
-                .map_err(ErlangOTPBuildpackError::ResolveVersion)?;
-                let erlang_build = erlang_builds[5].clone();
+                .map_err(ErlangOTPBuildpackError::ListVersions)?;
 
+                // TODO: Use semver logic to resolve selected build.
+                let erlang_build = erlang_builds
+                    .iter()
+                    .find(|build| build.version.contains(otp_version))
+                    .ok_or(ErlangOTPBuildpackError::ResolveVersion)?;
+
+                println!("Downloading Erlang/OTP from {}", erlang_build.url());
                 tgz::fetch_extract_strip(erlang_build.url(), dist_layer.path())
                     .map_err(ErlangOTPBuildpackError::DownloadBuild)?;
 
-                println!("Installing Erlang/OTP");
+                println!("Installing Erlang/OTP version {}", erlang_build.version);
                 Command::new(dist_layer.path().join("Install"))
                     .arg("-minimal")
                     .arg(dist_layer.path())

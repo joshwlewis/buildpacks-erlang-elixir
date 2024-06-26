@@ -122,6 +122,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "buildpack-test-support"
+version = "0.0.0"
+dependencies = [
+ "libcnb-test",
+ "ureq",
+]
+
+[[package]]
 name = "bumpalo"
 version = "3.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -391,6 +399,7 @@ checksum = "5443807d6dff69373d433ab9ef5378ad8df50ca6298caf15de6e52e24aaf54d5"
 name = "erlang-otp-buildpack"
 version = "0.0.0"
 dependencies = [
+ "buildpack-test-support",
  "flate2",
  "libcnb",
  "libcnb-test",

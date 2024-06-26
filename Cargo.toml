@@ -3,6 +3,7 @@ resolver = "2"
 members = [
   "buildpacks/erlang-otp",
   "buildpacks/elixir-engine",
+  "test-support",
 ]
 
 [workspace.package]

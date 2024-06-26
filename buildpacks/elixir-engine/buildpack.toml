@@ -1,0 +1,17 @@
+api = "0.10"
+
+[buildpack]
+id = "joshwlewis/elixir-engine"
+version = "0.1.0"
+name = "Installs Elixir and Mix from builds.hex.pm"
+
+[[stacks]]
+id = "*"
+
+[[targets]]
+os = "linux"
+arch = "amd64"
+
+[[targets]]
+os = "linux"
+arch = "arm64"

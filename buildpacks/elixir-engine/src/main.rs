@@ -1,5 +1,3 @@
-use std::process::Command;
-
 use libcnb::build::{BuildContext, BuildResult, BuildResultBuilder};
 use libcnb::data::layer_name;
 use libcnb::detect::{DetectContext, DetectResult, DetectResultBuilder};
@@ -13,41 +11,37 @@ use libcnb::layer::{
 #[cfg(test)]
 use libcnb_test as _;
 use serde::{Deserialize, Serialize};
-
 mod bob;
-mod tgz;
-
-pub(crate) struct ErlangOTPBuildpack;
+mod zip;
+pub(crate) struct ElixirEngineBuildpack;
 
 #[derive(Debug)]
-pub(crate) enum ErlangOTPBuildpackError {
+pub(crate) enum ElixirEngineBuildpackError {
     ListVersions(bob::Error),
     ResolveVersion,
-    DownloadBuild(tgz::Error),
-    TempDir(std::io::Error),
-    Install(std::io::Error),
+    DownloadBuild(zip::Error),
 }
 
-impl From<ErlangOTPBuildpackError> for libcnb::Error<ErlangOTPBuildpackError> {
-    fn from(value: ErlangOTPBuildpackError) -> Self {
+impl From<ElixirEngineBuildpackError> for libcnb::Error<ElixirEngineBuildpackError> {
+    fn from(value: ElixirEngineBuildpackError) -> Self {
         Self::BuildpackError(value)
     }
 }
 
-impl Buildpack for ErlangOTPBuildpack {
+impl Buildpack for ElixirEngineBuildpack {
     type Platform = GenericPlatform;
     type Metadata = GenericMetadata;
-    type Error = ErlangOTPBuildpackError;
+    type Error = ElixirEngineBuildpackError;
 
     fn detect(&self, _context: DetectContext<Self>) -> libcnb::Result<DetectResult, Self::Error> {
         DetectResultBuilder::pass().build()
     }
 
     fn build(&self, context: BuildContext<Self>) -> libcnb::Result<BuildResult, Self::Error> {
-        // TODO: Allow user to pick Erlang/OTP version.
-        let otp_version = "26.2.4";
-        let metadata = ErlangOTPMetadata {
-            version: otp_version.to_string(),
+        // TODO: Allow user to pick Elixir version.
+        let elixir_version = "1.17.1";
+        let metadata = ElixirEngineMetadata {
+            version: elixir_version.to_string(),
         };
 
         let dist_layer = context.cached_layer(
@@ -56,7 +50,7 @@ impl Buildpack for ErlangOTPBuildpack {
                 build: true,
                 launch: true,
                 invalid_metadata_action: &|_| InvalidMetadataAction::DeleteLayer,
-                restored_layer_action: &|previous_metadata: &ErlangOTPMetadata, _| {
+                restored_layer_action: &|previous_metadata: &ElixirEngineMetadata, _| {
                     if previous_metadata == &metadata {
                         RestoredLayerAction::KeepLayer
                     } else {
@@ -68,34 +62,23 @@ impl Buildpack for ErlangOTPBuildpack {
 
         match dist_layer.state {
             LayerState::Restored { .. } => {
-                println!("Restoring Erlang/OTP {otp_version} from cache");
+                println!("Restoring Elixir {elixir_version} from cache");
             }
             LayerState::Empty { .. } => {
-                println!("Resolving Erlang/OTP version (requested {otp_version})");
+                println!("Resolving Elixir version (requested {elixir_version})");
 
-                let erlang_builds = bob::ErlangBuild::list(
-                    context.target.arch,
-                    context.target.distro_name,
-                    context.target.distro_version,
-                )
-                .map_err(ErlangOTPBuildpackError::ListVersions)?;
+                let elixir_builds =
+                    bob::ElixirBuild::list().map_err(ElixirEngineBuildpackError::ListVersions)?;
 
                 // TODO: Use semver logic to resolve selected build.
-                let erlang_build = erlang_builds
+                let elixir_build = elixir_builds
                     .iter()
-                    .find(|build| build.version.contains(otp_version))
-                    .ok_or(ErlangOTPBuildpackError::ResolveVersion)?;
+                    .find(|build| build.version.contains(elixir_version))
+                    .ok_or(ElixirEngineBuildpackError::ResolveVersion)?;
 
-                println!("Downloading Erlang/OTP from {}", erlang_build.url());
-                tgz::fetch_extract_strip(erlang_build.url(), dist_layer.path())
-                    .map_err(ErlangOTPBuildpackError::DownloadBuild)?;
-
-                println!("Installing Erlang/OTP version {}", erlang_build.version);
-                Command::new(dist_layer.path().join("Install"))
-                    .arg("-minimal")
-                    .arg(dist_layer.path())
-                    .status()
-                    .map_err(ErlangOTPBuildpackError::Install)?;
+                println!("Downloading Elixir from {}", elixir_build.url());
+                zip::fetch_strip_unzip(elixir_build.url(), dist_layer.path())
+                    .map_err(ElixirEngineBuildpackError::DownloadBuild)?;
             }
         }
         dist_layer.write_metadata(metadata)?;
@@ -105,8 +88,8 @@ impl Buildpack for ErlangOTPBuildpack {
 }
 
 #[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
-struct ErlangOTPMetadata {
+struct ElixirEngineMetadata {
     version: String,
 }
 
-buildpack_main!(ErlangOTPBuildpack);
+buildpack_main!(ElixirEngineBuildpack);

@@ -57,7 +57,7 @@ mod tests {
         )
         .expect("Expected to fetch, strip, unzip");
 
-        let target_path = dest.path().join("README");
+        let target_path = dest.path().join("git-1.0.0").join("README");
         assert!(target_path.exists());
     }
 }

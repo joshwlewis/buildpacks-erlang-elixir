@@ -16,3 +16,4 @@ flate2 = { version = "1", default-features = false, features = ["zlib"] }
 [dev-dependencies]
 libcnb-test = "=0.22.0"
 serde_json = "1"
+tempfile = "3"

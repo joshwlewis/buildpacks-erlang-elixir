@@ -4,7 +4,8 @@ use libcnb::build::{BuildContext, BuildResult, BuildResultBuilder};
 use libcnb::data::layer_name;
 use libcnb::detect::{DetectContext, DetectResult, DetectResultBuilder};
 use libcnb::generic::{GenericMetadata, GenericPlatform};
-use libcnb::{buildpack_main, Buildpack};
+use libcnb::layer_env::{LayerEnv, ModificationBehavior, Scope};
+use libcnb::{buildpack_main, Buildpack, Env};
 
 // Suppress warnings due to the `unused_crate_dependencies` lint not handling integration tests well.
 use libcnb::layer::{
@@ -96,6 +97,13 @@ impl Buildpack for ErlangOTPBuildpack {
                     .arg(dist_layer.path())
                     .status()
                     .map_err(ErlangOTPBuildpackError::Install)?;
+
+                dist_layer.write_env(LayerEnv::new().chainable_insert(
+                    Scope::All,
+                    ModificationBehavior::Override,
+                    "LC_ALL",
+                    "en_US.utf8",
+                ))?;
             }
         }
         dist_layer.write_metadata(metadata)?;

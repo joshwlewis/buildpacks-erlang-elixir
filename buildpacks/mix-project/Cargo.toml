@@ -1,5 +1,5 @@
 [package]
-name = "mix-compile-buildpack"
+name = "mix-project-buildpack"
 rust-version.workspace = true
 edition.workspace = true
 

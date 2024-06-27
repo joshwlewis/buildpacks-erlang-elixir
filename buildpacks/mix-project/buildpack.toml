@@ -1,9 +1,9 @@
 api = "0.10"
 
 [buildpack]
-id = "joshwlewis/mix-compile"
+id = "joshwlewis/mix-project"
 version = "0.1.0"
-name = "Compiles a mix project"
+name = "Compiles and runs Mix project"
 
 [[stacks]]
 id = "*"

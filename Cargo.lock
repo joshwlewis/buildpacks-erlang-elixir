@@ -862,7 +862,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "mix-compile-buildpack"
+name = "mix-project-buildpack"
 version = "0.0.0"
 dependencies = [
  "buildpack-test-support",

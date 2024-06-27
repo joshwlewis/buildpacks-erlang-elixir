@@ -8,23 +8,23 @@ use std::process::Command;
 #[cfg(test)]
 use libcnb_test as _;
 use serde::{Deserialize, Serialize};
-pub(crate) struct MixCompileBuildpack;
+pub(crate) struct MixProjectBuildpack;
 
 #[derive(Debug)]
-enum MixCompileBuildpackError {
+enum MixProjectBuildpackError {
     MixCommand(std::io::Error),
 }
 
-impl From<MixCompileBuildpackError> for libcnb::Error<MixCompileBuildpackError> {
-    fn from(value: MixCompileBuildpackError) -> Self {
+impl From<MixProjectBuildpackError> for libcnb::Error<MixProjectBuildpackError> {
+    fn from(value: MixProjectBuildpackError) -> Self {
         Self::BuildpackError(value)
     }
 }
 
-impl Buildpack for MixCompileBuildpack {
+impl Buildpack for MixProjectBuildpack {
     type Platform = GenericPlatform;
     type Metadata = GenericMetadata;
-    type Error = MixCompileBuildpackError;
+    type Error = MixProjectBuildpackError;
 
     fn detect(&self, _context: DetectContext<Self>) -> libcnb::Result<DetectResult, Self::Error> {
         DetectResultBuilder::pass().build()
@@ -35,13 +35,13 @@ impl Buildpack for MixCompileBuildpack {
         Command::new("mix")
             .arg("deps.get")
             .status()
-            .map_err(MixCompileBuildpackError::MixCommand)?;
+            .map_err(MixProjectBuildpackError::MixCommand)?;
 
         println!("Compiling project with `mix compile`");
         Command::new("mix")
             .arg("compile")
             .status()
-            .map_err(MixCompileBuildpackError::MixCommand)?;
+            .map_err(MixProjectBuildpackError::MixCommand)?;
 
         BuildResultBuilder::new()
             .launch(
@@ -58,9 +58,4 @@ impl Buildpack for MixCompileBuildpack {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
-struct MixCompileMetadata {
-    version: String,
-}
-
-buildpack_main!(MixCompileBuildpack);
+buildpack_main!(MixProjectBuildpack);

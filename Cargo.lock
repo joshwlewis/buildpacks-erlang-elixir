@@ -380,6 +380,7 @@ checksum = "3dca9240753cf90908d7e4aac30f630662b02aebaa1b58a3cadabdb23385b58b"
 name = "elixir-engine-buildpack"
 version = "0.0.0"
 dependencies = [
+ "buildpack-test-support",
  "libcnb",
  "libcnb-test",
  "serde",

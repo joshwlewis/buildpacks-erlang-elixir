@@ -4,7 +4,7 @@
 main([Ports | _]) ->
   Port = erlang:list_to_integer(Ports),
   start(Port),
-  io:format("escript_server listening on port ~p.~n", [Port]),
+  io:format("escript-server listening on port ~p.~n", [Port]),
   receive
     stop -> ok
   end.
@@ -20,7 +20,7 @@ loop(Sock) ->
     loop(Sock).
 
 handle(Conn) ->
-    gen_tcp:send(Conn, response("escript_server\n")),
+    gen_tcp:send(Conn, response("Hello from escript-server!\n")),
     gen_tcp:close(Conn).
 
 response(Str) ->

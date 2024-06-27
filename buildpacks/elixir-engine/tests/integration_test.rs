@@ -5,12 +5,13 @@ use libcnb_test::BuildpackReference;
 #[ignore = "integration test"]
 fn test_simple_erlang_server() {
     test_fixture(
-        "escript-server",
+        "exs-server",
         &[
+            BuildpackReference::WorkspaceBuildpack("joshwlewis/erlang-otp".parse().unwrap()),
             BuildpackReference::CurrentCrate,
             BuildpackReference::Other("heroku/procfile".to_string()),
         ],
-        &["Installing Erlang/OTP"],
+        &["Downloading Elixir"],
         &[],
     );
 }

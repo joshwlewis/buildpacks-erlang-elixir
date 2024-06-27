@@ -90,8 +90,8 @@ impl Buildpack for ElixirEngineBuildpack {
         }
         dist_layer.write_metadata(&metadata)?;
         build_env = dist_layer.read_env()?.apply(Scope::Build, &build_env);
-        let mix_layer = context.cached_layer(
-            layer_name!("mix"),
+        let etc_layer = context.cached_layer(
+            layer_name!("etc"),
             CachedLayerDefinition {
                 build: true,
                 launch: true,
@@ -105,19 +105,21 @@ impl Buildpack for ElixirEngineBuildpack {
                 },
             },
         )?;
-        let mix_home_dir = mix_layer.path().join("home");
-        let mix_archives_dir = mix_layer.path().join("archives");
-        let mix_build_dir = mix_layer.path().join("build");
-        // TODO: mix_deps_dir cache should expire seperately from elixir version.
-        let mix_deps_dir = mix_layer.path().join("deps");
-        let mix_install_dir = mix_layer.path().join("install");
-        match mix_layer.state {
+        let mix_home_dir = etc_layer.path().join("mix");
+        let hex_home_dir = etc_layer.path().join("hex");
+        let mix_archives_dir = etc_layer.path().join("archives");
+        let mix_build_dir = etc_layer.path().join("build");
+        // TODO: mix_deps_dir cache should expire seperately from elixir version?
+        let mix_deps_dir = etc_layer.path().join("deps");
+        let mix_install_dir = etc_layer.path().join("install");
+        match etc_layer.state {
             LayerState::Restored { .. } => {
                 println!("Restoring Mix directories.")
             }
             LayerState::Empty { .. } => {
                 println!("Creating Mix directories.");
                 for dir in [
+                    &hex_home_dir,
                     &mix_home_dir,
                     &mix_archives_dir,
                     &mix_build_dir,
@@ -126,8 +128,14 @@ impl Buildpack for ElixirEngineBuildpack {
                 ] {
                     create_dir_all(dir).map_err(ElixirEngineBuildpackError::CreateDir)?;
                 }
-                mix_layer.write_env(
+                etc_layer.write_env(
                     LayerEnv::new()
+                        .chainable_insert(
+                            Scope::All,
+                            ModificationBehavior::Override,
+                            "HEX_HOME",
+                            hex_home_dir,
+                        )
                         .chainable_insert(
                             Scope::All,
                             ModificationBehavior::Override,
@@ -161,8 +169,8 @@ impl Buildpack for ElixirEngineBuildpack {
                 )?;
             }
         };
-        mix_layer.write_metadata(&metadata)?;
-        build_env = mix_layer.read_env()?.apply(Scope::Build, &build_env);
+        etc_layer.write_metadata(&metadata)?;
+        build_env = etc_layer.read_env()?.apply(Scope::Build, &build_env);
 
         Command::new("mix")
             .arg("local.hex")

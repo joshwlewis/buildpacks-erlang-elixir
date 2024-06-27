@@ -1,0 +1,15 @@
+[package]
+name = "mix-compile-buildpack"
+rust-version.workspace = true
+edition.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+libcnb = { version = "=0.22.0", features = ["trace"] }
+serde = "1"
+
+[dev-dependencies]
+buildpack-test-support = { path = "../../test-support" }
+libcnb-test = "=0.22.0"

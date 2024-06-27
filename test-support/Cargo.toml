@@ -1,0 +1,11 @@
+[package]
+name = "buildpack-test-support"
+rust-version.workspace = true
+edition.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+libcnb-test = "=0.22.0"
+ureq = { version = "2", default-features = false, features = ["tls"] }

@@ -1,0 +1,19 @@
+[package]
+name = "elixir-engine-buildpack"
+rust-version.workspace = true
+edition.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+libcnb = { version = "=0.22.0", features = ["trace"] }
+serde = "1"
+tempfile = "3"
+ureq = "2"
+zip = "2.1"
+
+[dev-dependencies]
+buildpack-test-support = { path = "../../test-support" }
+libcnb-test = "=0.22.0"
+serde_json = "1"

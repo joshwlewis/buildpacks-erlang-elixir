@@ -1,0 +1,17 @@
+api = "0.10"
+
+[buildpack]
+id = "joshwlewis/mix-project"
+version = "0.1.0"
+name = "Compiles and runs Mix project"
+
+[[stacks]]
+id = "*"
+
+[[targets]]
+os = "linux"
+arch = "amd64"
+
+[[targets]]
+os = "linux"
+arch = "arm64"
